@@ -2,8 +2,8 @@ import Foundation
 import UniformTypeIdentifiers
 
 public enum WebMediaKind:String,Codable,Sendable { case image,video,audio }
-public enum WebDownloadMode:String,CaseIterable,Sendable { case original,video,audioMP3
-    public var title:String { switch self { case .original:return "Original file";case .video:return "Video";case .audioMP3:return "Audio · MP3" } }
+public enum WebDownloadMode:String,CaseIterable,Sendable { case original,video,audioMP3,transcript
+    public var title:String { switch self { case .original:return "Original file";case .video:return "Video";case .audioMP3:return "Audio · MP3";case .transcript:return "Transcript · TXT" } }
 }
 public struct WebMediaInfo:Sendable {
     public let url:URL
@@ -19,7 +19,12 @@ public struct WebMediaInfo:Sendable {
     public var imageHeight:Int? = nil
     public var photos:[WebPhoto] = []
     public var skippedVideoCount:Int = 0
-    public var modes:[WebDownloadMode] { kind == .image ? [.original]:direct || kind == .audio ? [.original,.audioMP3]:[.video,.audioMP3] }
+    public var modes:[WebDownloadMode] {
+        if kind == .image { return [.original] }
+        if direct { return [.original,.audioMP3] }
+        // Subtitles come from the site through yt-dlp; direct files have none.
+        return (kind == .audio ? [.original,.audioMP3]:[.video,.audioMP3])+[.transcript]
+    }
 }
 
 public enum WebDownloadEngine {
@@ -94,6 +99,18 @@ public enum WebDownloadEngine {
             results=try await InstagramPhotos.download(info,selected:selectedPhotos,directory:area.directory,token:token,progress:progress)
         } else if info.direct {
             results=try await downloadDirect(info,mode:mode,directory:area.directory,token:token,progress:progress)
+        } else if mode == .transcript {
+            let arguments=try downloadArguments(info,mode:mode,maximumHeight:nil,directory:area.directory)
+            progress(OperationProgress.indeterminate,"Finding subtitles…")
+            do {
+                _=try await Task.detached { try WebDownloadProcess.run(Dependencies.executable("yt-dlp"),arguments,token:token,timeout:600) }.value
+            } catch {
+                // One language can fail (YouTube rate-limits translated captions) while another was saved.
+                try token.check();try Task.checkCancellation()
+                let files=(try? FileManager.default.contentsOfDirectory(atPath:area.directory.path)) ?? []
+                guard files.contains(where:{$0.lowercased().hasSuffix(".srt")}) else { throw error }
+            }
+            results=try transcripts(in:area.directory)
         } else {
             let arguments=try downloadArguments(info,mode:mode,maximumHeight:maximumHeight,directory:area.directory)
             let data=try await Task.detached { try WebDownloadProcess.run(Dependencies.executable("yt-dlp"),arguments,token:token,timeout:21_600,progress:progress) }.value
@@ -144,7 +161,21 @@ public enum WebDownloadEngine {
          "--socket-timeout","20","--retries","2","--extractor-retries","1","--no-colors"] +
         (photoPost ? ["--yes-playlist","--playlist-end","51"]:["--no-playlist","--playlist-items","1"])
     }
+    /// Subtitle languages to ask for: the user's first macOS languages, then English.
+    static func transcriptLanguages(_ preferred:[String]=Locale.preferredLanguages)->[String] {
+        var codes:[String]=[]
+        for code in preferred.prefix(2).map({String($0.split(separator:"-").first ?? "")})+["en"] where !code.isEmpty && !codes.contains(code) { codes.append(code) }
+        return codes
+    }
     static func downloadArguments(_ info:WebMediaInfo,mode:WebDownloadMode,maximumHeight:Int?,directory:URL) throws -> [String] {
+        if mode == .transcript {
+            // Uploaded subtitles win over automatic captions when both exist for a language.
+            return try baseArguments()+["--no-simulate","--skip-download","--no-overwrites","--windows-filenames","--trim-filenames","180",
+                "--ignore-errors","--write-subs","--write-auto-subs","--sub-langs",transcriptLanguages().joined(separator:","),
+                "--sub-format","vtt/srt/best","--convert-subs","srt",
+                "--output",directory.appendingPathComponent("%(title).120B [%(id).40B].%(ext)s").path,
+                "--",info.url.absoluteString]
+        }
         var args=try baseArguments()+["--no-simulate","--no-overwrites","--windows-filenames","--trim-filenames","180",
              "--downloader","native","--newline","--progress","--progress-template","download:NASHI_PROGRESS:%(progress._percent_str)s",
              "--print","before_dl:NASHI_STAGE:Preparing media…","--print","post_process:NASHI_STAGE:Finishing media…",
@@ -156,8 +187,40 @@ public enum WebDownloadEngine {
             let limit=maximumHeight.map{"[height<=?\($0)]"} ?? ""
             args += ["--format","bestvideo[ext=mp4]\(limit)+bestaudio[ext=m4a]/best[ext=mp4]\(limit)/bestvideo\(limit)+bestaudio/best\(limit)","--merge-output-format","mp4","--remux-video","mp4"]
         case .original:args += ["--format","bestaudio/best"]
+        case .transcript:break
         }
         return args+["--",info.url.absoluteString]
+    }
+
+    /// Every subtitle yt-dlp wrote, kept as SRT and paired with a plain-text transcript.
+    static func transcripts(in directory:URL) throws -> [URL] {
+        let subtitles=try FileManager.default.contentsOfDirectory(at:directory,includingPropertiesForKeys:nil)
+            .filter{$0.pathExtension.lowercased()=="srt"}.sorted{$0.lastPathComponent<$1.lastPathComponent}
+        guard !subtitles.isEmpty else {
+            throw NashiError.unsupported("This video has no subtitles or automatic captions in your languages or English.")
+        }
+        var results:[URL]=[]
+        for subtitle in subtitles {
+            let text=transcriptText(fromSRT:try String(contentsOf:subtitle,encoding:.utf8))
+            let output=subtitle.deletingPathExtension().appendingPathExtension("txt")
+            try text.write(to:output,atomically:true,encoding:.utf8)
+            results += [output,subtitle]
+        }
+        return results
+    }
+    /// SRT to readable text: no cue numbers, times or tags. Automatic captions repeat each
+    /// line in the next cue, so a line that appeared in the last few lines is dropped.
+    public static func transcriptText(fromSRT srt:String)->String {
+        var lines:[String]=[]
+        for raw in srt.replacingOccurrences(of:"\r\n",with:"\n").split(separator:"\n",omittingEmptySubsequences:true) {
+            let line=raw.replacingOccurrences(of:"<[^>]+>",with:"",options:.regularExpression)
+                .replacingOccurrences(of:"&nbsp;",with:" ").replacingOccurrences(of:"&amp;",with:"&")
+                .trimmingCharacters(in:.whitespaces)
+            if line.isEmpty || line.contains("-->") || line.allSatisfy(\.isNumber) { continue }
+            if lines.suffix(3).contains(line) { continue }
+            lines.append(line)
+        }
+        return lines.joined(separator:"\n")+"\n"
     }
 
     static func downloadDirect(_ info:WebMediaInfo,mode:WebDownloadMode,directory:URL,token:CancellationToken,

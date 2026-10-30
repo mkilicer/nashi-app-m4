@@ -638,6 +638,7 @@
 "DOWNLOAD PHOTOS" = "FOTOĞRAFLARI İNDİR";
 "DOWNLOAD THE MISSING TOOLS TO ENABLE ALL CONVERSIONS, PREVIEWS AND WEB DOWNLOADS. TOOLS ALREADY FOUND ON YOUR COMPUTER ARE KEPT." = "TÜM DÖNÜŞTÜRMELERİ, ÖNİZLEMELERİ VE WEB İNDİRMELERİNİ AÇMAK İÇİN EKSİK ARAÇLARI İNDİR. BİLGİSAYARINDA BULUNAN ARAÇLAR KORUNUR.";
 "DOWNLOAD THUMBNAIL" = "KÜÇÜK RESMİ İNDİR";
+"DOWNLOAD TRANSCRIPT" = "TRANSKRİPTİ İNDİR";
 "DOWNLOAD VIDEO" = "VİDEOYU İNDİR";
 "DOWNLOAD ↗" = "İNDİR ↗";
 "DOWNLOADING LIBREOFFICE 26.8.1…" = "LIBREOFFICE 26.8.1 İNDİRİLİYOR…";
@@ -709,6 +710,7 @@
 "Download photos" = "Fotoğrafları indir";
 "Download the missing tools to enable all conversions, previews and web downloads. Tools already found on your computer are kept." = "Tüm dönüştürmeleri, önizlemeleri ve web indirmelerini açmak için eksik araçları indir. Bilgisayarında bulunan araçlar korunur.";
 "Download thumbnail" = "Küçük resmi indir";
+"Download transcript" = "Transkripti indir";
 "Download video" = "Videoyu indir";
 "Download ↗" = "İndir ↗";
 "Download, verify and install Nashi %@? The app will restart. No account or token is needed." = "Nashi %@ indirilip doğrulansın ve kurulsun mu? Uygulama yeniden başlayacak. Hesap veya token gerekmez.";
@@ -827,6 +829,7 @@
 "FIND A RECENT FILE" = "SON DOSYALARDA ARA";
 "FIND IN LIBRARY…" = "KİTAPLIKTA ARA…";
 "FIND MEDIA" = "MEDYAYI BUL";
+"FINDING SUBTITLES…" = "ALTYAZILAR ARANIYOR…";
 "FINDING THE MEDIA…" = "MEDYA BULUNUYOR…";
 "FINE-GRAINED ACCESS TOKEN" = "AYRINTILI ERİŞİM TOKENI";
 "FINE-TUNE" = "İNCE AYAR";
@@ -894,6 +897,7 @@
 "Find a recent file" = "Son dosyalarda ara";
 "Find in Library…" = "Kitaplıkta Ara…";
 "Find media" = "Medyayı bul";
+"Finding subtitles…" = "Altyazılar aranıyor…";
 "Finding the media…" = "Medya bulunuyor…";
 "Fine-grained access token" = "Ayrıntılı erişim tokenı";
 "Fine-tune" = "İnce ayar";
@@ -1946,6 +1950,7 @@
 "THIS SIZE CANNOT BE REACHED. CHOOSE A LARGER TARGET OR SMALLER DIMENSIONS." = "BU BOYUTA İNİLEMİYOR. DAHA BÜYÜK BİR HEDEF VEYA DAHA KÜÇÜK BOYUTLAR SEÇ.";
 "THIS TEXT IS TOO LARGE TO PASTE. CHOOSE A TEXT FILE INSTEAD." = "BU METİN YAPIŞTIRMAK İÇİN ÇOK BÜYÜK. BUNUN YERİNE BİR METİN DOSYASI SEÇ.";
 "THIS TEXT IS TOO LARGE TO PREVIEW. USE OPEN TO READ THE COMPLETE FILE." = "BU METİN ÖNİZLEME İÇİN ÇOK BÜYÜK. DOSYANIN TAMAMINI OKUMAK İÇİN AÇ'I KULLAN.";
+"THIS VIDEO HAS NO SUBTITLES OR AUTOMATIC CAPTIONS IN YOUR LANGUAGES OR ENGLISH." = "BU VİDEODA SENİN DİLLERİNDE YA DA İNGİLİZCE ALTYAZI VEYA OTOMATİK ALTYAZI YOK.";
 "THIS WINDOW COULD NOT BE ARRANGED. THE APP MAY RESTRICT RESIZING." = "BU PENCERE DÜZENLENEMEDİ. UYGULAMA YENİDEN BOYUTLANDIRMAYI KISITLIYOR OLABİLİR.";
 "THIS WINDOWS CODEC CANNOT PLAY DIRECTLY. SET UP MEDIA TOOLS TO CREATE A LOCAL PREVIEW." = "BU WINDOWS CODEC'İ DOĞRUDAN OYNATILAMIYOR. YEREL ÖNİZLEME OLUŞTURMAK İÇİN MEDYA ARAÇLARINI KUR.";
 "THOSE FILES ARE NO LONGER AVAILABLE." = "BU DOSYALARA ARTIK ULAŞILAMIYOR.";
@@ -1962,6 +1967,7 @@
 "TOOLS · WHILE DRAGGING" = "ARAÇLAR · SÜRÜKLERKEN";
 "TOP" = "ÜST";
 "TRACK NAME" = "İZ ADI";
+"TRANSCRIPT · TXT" = "TRANSKRİPT · TXT";
 "TRANSPARENT" = "ŞEFFAF";
 "TRANSPARENT BACKGROUNDS SAVE AS PNG TO KEEP THEIR TRANSPARENCY." = "ŞEFFAF ARKA PLANLAR, ŞEFFAFLIĞI KORUMAK İÇİN PNG OLARAK KAYDEDİLİR.";
 "TRIM" = "KIRP";
@@ -2036,6 +2042,7 @@
 "This size cannot be reached. Choose a larger target or smaller dimensions." = "Bu boyuta inilemiyor. Daha büyük bir hedef veya daha küçük boyutlar seç.";
 "This text is too large to paste. Choose a text file instead." = "Bu metin yapıştırmak için çok büyük. Bunun yerine bir metin dosyası seç.";
 "This text is too large to preview. Use Open to read the complete file." = "Bu metin önizleme için çok büyük. Dosyanın tamamını okumak için Aç'ı kullan.";
+"This video has no subtitles or automatic captions in your languages or English." = "Bu videoda senin dillerinde ya da İngilizce altyazı veya otomatik altyazı yok.";
 "This window could not be arranged. The app may restrict resizing." = "Bu pencere düzenlenemedi. Uygulama yeniden boyutlandırmayı kısıtlıyor olabilir.";
 "Those files are no longer available." = "Bu dosyalara artık ulaşılamıyor.";
 "Thumbnail" = "Küçük resim";
@@ -2051,6 +2058,7 @@
 "Tools · while dragging" = "Araçlar · sürüklerken";
 "Top" = "Üst";
 "Track name" = "İz adı";
+"Transcript · TXT" = "Transkript · TXT";
 "Transparent" = "Şeffaf";
 "Transparent backgrounds save as PNG to keep their transparency." = "Şeffaf arka planlar, şeffaflığı korumak için PNG olarak kaydedilir.";
 "Trim" = "Kırp";
