@@ -19,6 +19,8 @@ public struct WebMediaInfo:Sendable {
     public var imageHeight:Int? = nil
     public var photos:[WebPhoto] = []
     public var skippedVideoCount:Int = 0
+    /// Subtitle and automatic caption language codes the site lists, when it lists them.
+    public var subtitleLanguages:[String] = []
     public var modes:[WebDownloadMode] {
         if kind == .image { return [.original] }
         if direct { return [.original,.audioMP3] }
@@ -83,7 +85,10 @@ public enum WebDownloadEngine {
         // Generic HTML5 videos often omit both height and codec metadata.
         let video = !heights.isEmpty || !audioOnly
         let duration=(item["duration"] as? Double).flatMap{$0.isFinite && $0>0 && $0<31_536_000 ? $0:nil}
-        return WebMediaInfo(url:url,title:String((item["title"] as? String ?? "Web media").prefix(300)),kind:video ? .video:.audio,site:item["extractor_key"] as? String ?? url.host ?? "Web",duration:duration,heights:heights,direct:false,filename:nil,byteCount:nil)
+        var info=WebMediaInfo(url:url,title:String((item["title"] as? String ?? "Web media").prefix(300)),kind:video ? .video:.audio,site:item["extractor_key"] as? String ?? url.host ?? "Web",duration:duration,heights:heights,direct:false,filename:nil,byteCount:nil)
+        let listed=["subtitles","automatic_captions"].flatMap{((item[$0] as? [String:Any])?.keys).map(Array.init) ?? []}
+        info.subtitleLanguages=Array(Set(listed.filter{$0.range(of:"^[A-Za-z0-9-]{1,40}$",options:.regularExpression) != nil})).sorted()
+        return info
     }
 
     public static func download(_ info:WebMediaInfo,mode:WebDownloadMode,maximumHeight:Int?,destination:URL,selectedPhotos:Set<Int>? = nil,
@@ -161,17 +166,29 @@ public enum WebDownloadEngine {
          "--socket-timeout","20","--retries","2","--extractor-retries","1","--no-colors"] +
         (photoPost ? ["--yes-playlist","--playlist-end","51"]:["--no-playlist","--playlist-items","1"])
     }
-    /// Subtitle languages to ask for: the user's first macOS languages, then English.
-    static func transcriptLanguages(_ preferred:[String]=Locale.preferredLanguages)->[String] {
+    /// Subtitle languages to ask for: the user's first macOS languages, then English, each with
+    /// its region and script variants the site lists (en-GB, pt-BR, zh-Hans, es-419). YouTube also
+    /// lists lower-case variants, "-orig" and machine translations named target-source (tr-ur,
+    /// en-en); they duplicate the plain code and are left out. yt-dlp matches --sub-langs without
+    /// case, so the choice is made here against the listed codes.
+    static func transcriptLanguages(_ preferred:[String]=Locale.preferredLanguages,available:[String]=[])->[String] {
         var codes:[String]=[]
         for code in preferred.prefix(2).map({String($0.split(separator:"-").first ?? "")})+["en"] where !code.isEmpty && !codes.contains(code) { codes.append(code) }
-        return codes
+        guard !available.isEmpty else { return codes }
+        let chosen=codes.flatMap { code in
+            available.filter { listed in
+                guard listed != code else { return true }
+                guard listed.hasPrefix(code+"-"),let first=listed.dropFirst(code.count+1).first else { return false }
+                return first.isUppercase || first.isNumber
+            }
+        }
+        return chosen.isEmpty ? codes:chosen
     }
     static func downloadArguments(_ info:WebMediaInfo,mode:WebDownloadMode,maximumHeight:Int?,directory:URL) throws -> [String] {
         if mode == .transcript {
             // Uploaded subtitles win over automatic captions when both exist for a language.
             return try baseArguments()+["--no-simulate","--skip-download","--no-overwrites","--windows-filenames","--trim-filenames","180",
-                "--ignore-errors","--write-subs","--write-auto-subs","--sub-langs",transcriptLanguages().joined(separator:","),
+                "--ignore-errors","--write-subs","--write-auto-subs","--sub-langs",transcriptLanguages(available:info.subtitleLanguages).joined(separator:","),
                 "--sub-format","vtt/srt/best","--convert-subs","srt",
                 "--output",directory.appendingPathComponent("%(title).120B [%(id).40B].%(ext)s").path,
                 "--",info.url.absoluteString]
@@ -193,34 +210,44 @@ public enum WebDownloadEngine {
     }
 
     /// Every subtitle yt-dlp wrote, kept as SRT and paired with a plain-text transcript.
+    /// A file that cannot be read is skipped as long as another one worked.
     static func transcripts(in directory:URL) throws -> [URL] {
         let subtitles=try FileManager.default.contentsOfDirectory(at:directory,includingPropertiesForKeys:nil)
             .filter{$0.pathExtension.lowercased()=="srt"}.sorted{$0.lastPathComponent<$1.lastPathComponent}
         guard !subtitles.isEmpty else {
             throw NashiError.unsupported("This video has no subtitles or automatic captions in your languages or English.")
         }
-        var results:[URL]=[]
+        var results:[URL]=[],firstError:Error?
         for subtitle in subtitles {
-            let text=transcriptText(fromSRT:try String(contentsOf:subtitle,encoding:.utf8))
-            let output=subtitle.deletingPathExtension().appendingPathExtension("txt")
-            try text.write(to:output,atomically:true,encoding:.utf8)
-            results += [output,subtitle]
+            do {
+                let text=transcriptText(fromSRT:try String(contentsOf:subtitle,encoding:.utf8))
+                let output=subtitle.deletingPathExtension().appendingPathExtension("txt")
+                try text.write(to:output,atomically:true,encoding:.utf8)
+                results += [output,subtitle]
+            } catch { firstError=firstError ?? error }
         }
+        if results.isEmpty,let firstError { throw firstError }
         return results
     }
-    /// SRT to readable text: no cue numbers, times or tags. Automatic captions repeat each
-    /// line in the next cue, so a line that appeared in the last few lines is dropped.
+    /// SRT to readable text: no cue numbers, times or tags. Automatic captions roll, so each cue
+    /// repeats the previous cue's last line; a line equal to one in the cue just before is dropped.
     public static func transcriptText(fromSRT srt:String)->String {
-        var lines:[String]=[]
-        for raw in srt.replacingOccurrences(of:"\r\n",with:"\n").split(separator:"\n",omittingEmptySubsequences:true) {
-            let line=raw.replacingOccurrences(of:"<[^>]+>",with:"",options:.regularExpression)
-                .replacingOccurrences(of:"&nbsp;",with:" ").replacingOccurrences(of:"&amp;",with:"&")
-                .trimmingCharacters(in:.whitespaces)
-            if line.isEmpty || line.contains("-->") || line.allSatisfy(\.isNumber) { continue }
-            if lines.suffix(3).contains(line) { continue }
-            lines.append(line)
+        var output:[String]=[],previous:[String]=[]
+        let normalized=srt.replacingOccurrences(of:"\r\n",with:"\n").replacingOccurrences(of:"\r",with:"\n")
+        for block in normalized.components(separatedBy:"\n\n") {
+            var lines=block.split(separator:"\n",omittingEmptySubsequences:true).map(String.init)
+            // A cue is: optional number, the timing line, then text. Only that header is removed.
+            guard let timing=lines.firstIndex(where:{$0.contains("-->")}),timing<=1 else { continue }
+            lines.removeSubrange(0...timing)
+            let cue=lines.map { line in
+                line.replacingOccurrences(of:"<[^>]+>",with:"",options:.regularExpression)
+                    .replacingOccurrences(of:"&nbsp;",with:" ").replacingOccurrences(of:"&amp;",with:"&")
+                    .trimmingCharacters(in:.whitespaces)
+            }.filter{!$0.isEmpty}
+            output += cue.filter{!previous.contains($0)}
+            previous=cue
         }
-        return lines.joined(separator:"\n")+"\n"
+        return output.joined(separator:"\n")+"\n"
     }
 
     static func downloadDirect(_ info:WebMediaInfo,mode:WebDownloadMode,directory:URL,token:CancellationToken,

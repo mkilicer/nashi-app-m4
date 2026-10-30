@@ -634,6 +634,7 @@
 "DOWNLOAD LINK…" = "TÉLÉCHARGER LE LIEN…";
 "DOWNLOAD MEDIA TOOLS" = "TÉLÉCHARGER LES OUTILS MULTIMÉDIAS";
 "DOWNLOAD MISSING TOOLS" = "TÉLÉCHARGER LES OUTILS MANQUANTS";
+"DOWNLOAD MP3" = "TÉLÉCHARGER LE MP3";
 "DOWNLOAD OFFICE TOOLS" = "TÉLÉCHARGER LES OUTILS BUREAUTIQUES";
 "DOWNLOAD PHOTOS" = "TÉLÉCHARGER LES PHOTOS";
 "DOWNLOAD THE MISSING TOOLS TO ENABLE ALL CONVERSIONS, PREVIEWS AND WEB DOWNLOADS. TOOLS ALREADY FOUND ON YOUR COMPUTER ARE KEPT." = "TÉLÉCHARGEZ LES OUTILS MANQUANTS POUR ACTIVER TOUTES LES CONVERSIONS, LES APERÇUS ET LES TÉLÉCHARGEMENTS WEB. LES OUTILS DÉJÀ PRÉSENTS SUR VOTRE ORDINATEUR SONT CONSERVÉS.";
@@ -694,6 +695,7 @@
 "Download Images" = "Télécharger les images";
 "Download LibreOffice 26.8.1 (~360 MB) from The Document Foundation? Its SHA-256 is checked, then the package is extracted into Nashi’s user tools folder. No administrator password or Office subscription is needed. LibreOffice retains its upstream licenses." = "Télécharger LibreOffice 26.8.1 (~360 Mo) depuis The Document Foundation ? Son SHA-256 est vérifié, puis le paquet est extrait dans le dossier d’outils utilisateur de Nashi. Aucun mot de passe administrateur ni abonnement Office n’est nécessaire. LibreOffice conserve ses licences amont.";
 "Download Link…" = "Télécharger le lien…";
+"Download MP3" = "Télécharger le MP3";
 "Download Thumbnail" = "Télécharger la miniature";
 "Download Video" = "Télécharger la vidéo";
 "Download a link" = "Télécharger un lien";
@@ -703,6 +705,7 @@
 "Download ended early." = "Le téléchargement s’est terminé prématurément.";
 "Download exceeded its limit." = "Le téléchargement a dépassé sa limite.";
 "Download from the web" = "Télécharger depuis le web";
+"Download image" = "Télécharger l’image";
 "Download is larger than the supported limit." = "Le téléchargement dépasse la limite prise en charge.";
 "Download media tools" = "Télécharger les outils multimédias";
 "Download missing tools" = "Télécharger les outils manquants";

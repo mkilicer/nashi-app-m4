@@ -634,6 +634,7 @@
 "DOWNLOAD LINK…" = "DOWNLOAD LINK…";
 "DOWNLOAD MEDIA TOOLS" = "DOWNLOAD MEDIA TOOLS";
 "DOWNLOAD MISSING TOOLS" = "DOWNLOAD MISSING TOOLS";
+"DOWNLOAD MP3" = "DOWNLOAD MP3";
 "DOWNLOAD OFFICE TOOLS" = "DOWNLOAD OFFICE TOOLS";
 "DOWNLOAD PHOTOS" = "DOWNLOAD PHOTOS";
 "DOWNLOAD THE MISSING TOOLS TO ENABLE ALL CONVERSIONS, PREVIEWS AND WEB DOWNLOADS. TOOLS ALREADY FOUND ON YOUR COMPUTER ARE KEPT." = "DOWNLOAD THE MISSING TOOLS TO ENABLE ALL CONVERSIONS, PREVIEWS AND WEB DOWNLOADS. TOOLS ALREADY FOUND ON YOUR COMPUTER ARE KEPT.";
@@ -694,6 +695,7 @@
 "Download Images" = "Download Images";
 "Download LibreOffice 26.8.1 (~360 MB) from The Document Foundation? Its SHA-256 is checked, then the package is extracted into Nashi’s user tools folder. No administrator password or Office subscription is needed. LibreOffice retains its upstream licenses." = "Download LibreOffice 26.8.1 (~360 MB) from The Document Foundation? Its SHA-256 is checked, then the package is extracted into Nashi’s user tools folder. No administrator password or Office subscription is needed. LibreOffice retains its upstream licenses.";
 "Download Link…" = "Download Link…";
+"Download MP3" = "Download MP3";
 "Download Thumbnail" = "Download Thumbnail";
 "Download Video" = "Download Video";
 "Download a link" = "Download a link";
@@ -703,6 +705,7 @@
 "Download ended early." = "Download ended early.";
 "Download exceeded its limit." = "Download exceeded its limit.";
 "Download from the web" = "Download from the web";
+"Download image" = "Download image";
 "Download is larger than the supported limit." = "Download is larger than the supported limit.";
 "Download media tools" = "Download media tools";
 "Download missing tools" = "Download missing tools";

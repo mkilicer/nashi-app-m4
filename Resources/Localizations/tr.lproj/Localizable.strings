@@ -634,6 +634,7 @@
 "DOWNLOAD LINK…" = "BAĞLANTIDAN İNDİR…";
 "DOWNLOAD MEDIA TOOLS" = "MEDYA ARAÇLARINI İNDİR";
 "DOWNLOAD MISSING TOOLS" = "EKSİK ARAÇLARI İNDİR";
+"DOWNLOAD MP3" = "MP3 İNDİR";
 "DOWNLOAD OFFICE TOOLS" = "OFFICE ARAÇLARINI İNDİR";
 "DOWNLOAD PHOTOS" = "FOTOĞRAFLARI İNDİR";
 "DOWNLOAD THE MISSING TOOLS TO ENABLE ALL CONVERSIONS, PREVIEWS AND WEB DOWNLOADS. TOOLS ALREADY FOUND ON YOUR COMPUTER ARE KEPT." = "TÜM DÖNÜŞTÜRMELERİ, ÖNİZLEMELERİ VE WEB İNDİRMELERİNİ AÇMAK İÇİN EKSİK ARAÇLARI İNDİR. BİLGİSAYARINDA BULUNAN ARAÇLAR KORUNUR.";
@@ -694,6 +695,7 @@
 "Download Images" = "Görselleri İndir";
 "Download LibreOffice 26.8.1 (~360 MB) from The Document Foundation? Its SHA-256 is checked, then the package is extracted into Nashi’s user tools folder. No administrator password or Office subscription is needed. LibreOffice retains its upstream licenses." = "LibreOffice 26.8.1 (~360 MB) The Document Foundation'dan indirilsin mi? SHA-256 özeti kontrol edilir, ardından paket Nashi'nin araç klasörüne açılır. Yönetici parolası veya Office aboneliği gerekmez. LibreOffice kendi lisanslarını korur.";
 "Download Link…" = "Bağlantıdan İndir…";
+"Download MP3" = "MP3 indir";
 "Download Thumbnail" = "Küçük Resmi İndir";
 "Download Video" = "Videoyu İndir";
 "Download a link" = "Bağlantıdan indir";
@@ -703,6 +705,7 @@
 "Download ended early." = "İndirme erken sona erdi.";
 "Download exceeded its limit." = "İndirme izin verilen sınırı aştı.";
 "Download from the web" = "Web'den indir";
+"Download image" = "Görseli indir";
 "Download is larger than the supported limit." = "İndirilecek dosya desteklenen sınırdan büyük.";
 "Download media tools" = "Medya araçlarını indir";
 "Download missing tools" = "Eksik araçları indir";

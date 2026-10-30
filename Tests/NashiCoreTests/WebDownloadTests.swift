@@ -31,6 +31,12 @@ final class WebDownloadTests:XCTestCase {
     func testTranscriptArgumentsAndLanguages() throws {
         XCTAssertEqual(WebDownloadEngine.transcriptLanguages(["tr-TR","en-TR"]),["tr","en"])
         XCTAssertEqual(WebDownloadEngine.transcriptLanguages(["de-DE","fr-FR"]),["de","fr","en"])
+        let listed=["en","en-GB","en-orig","en-en","en-tr","es-419","tr","tr-ur","zh-Hans"]
+        XCTAssertEqual(WebDownloadEngine.transcriptLanguages(["tr-TR"],available:listed),["tr","en","en-GB"])
+        XCTAssertEqual(WebDownloadEngine.transcriptLanguages(["es-ES","zh-CN"],available:listed),["es-419","zh-Hans","en","en-GB"])
+        XCTAssertEqual(WebDownloadEngine.transcriptLanguages(["ja-JP"],available:["ko"]),["ja","en"])
+        let youtube=try WebDownloadEngine.parseMetadata(Data(#"{"formats":[{"height":720}],"subtitles":{"en-GB":[],"live chat":[]},"automatic_captions":{"en":[],"tr-ur":[]}}"#.utf8),url:URL(string:"https://example.org/watch")!)
+        XCTAssertEqual(youtube.subtitleLanguages,["en","en-GB","tr-ur"])
         let info=try WebDownloadEngine.parseMetadata(Data(#"{"formats":[{"height":1080}]}"#.utf8),url:URL(string:"https://example.org/watch")!)
         let args=try WebDownloadEngine.downloadArguments(info,mode:.transcript,maximumHeight:nil,directory:URL(fileURLWithPath:"/tmp/stage"))
         for flag in ["--ignore-config","--skip-download","--write-subs","--write-auto-subs","--no-playlist"] { XCTAssertTrue(args.contains(flag)) }
@@ -39,6 +45,8 @@ final class WebDownloadTests:XCTestCase {
     func testTranscriptTextDropsTimingAndRollingCaptionRepeats() {
         let srt="1\r\n00:00:00,000 --> 00:00:02,000\r\n<c>Hello there</c>\r\n\r\n2\r\n00:00:02,000 --> 00:00:04,000\r\nHello there\r\nhow are you\r\n\r\n3\r\n00:00:04,000 --> 00:00:06,000\r\nhow are you\r\nfine &amp; you\r\n"
         XCTAssertEqual(WebDownloadEngine.transcriptText(fromSRT:srt),"Hello there\nhow are you\nfine & you\n")
+        let speech="1\n00:00:00,000 --> 00:00:01,000\n2024\n\n2\n00:00:01,000 --> 00:00:02,000\nYes\n\n3\n00:00:02,000 --> 00:00:03,000\nNo\n\n4\n00:00:03,000 --> 00:00:04,000\nYes\n"
+        XCTAssertEqual(WebDownloadEngine.transcriptText(fromSRT:speech),"2024\nYes\nNo\nYes\n")
     }
     func testLiveAndProtectedMediaRejected() {
         for json in [#"{"is_live":true,"url":"https://a.org/a"}"#,#"{"live_status":"is_upcoming","url":"https://a.org/a"}"#,#"{"has_drm":true,"url":"https://a.org/a"}"#,#"{"url":"https://a.org/a","formats":[{"height":1080,"has_drm":true}]}"#,#"{"formats":[]}"#] {
