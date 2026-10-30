@@ -47,6 +47,8 @@ final class WebDownloadTests:XCTestCase {
         XCTAssertEqual(WebDownloadEngine.transcriptText(fromSRT:srt),"Hello there\nhow are you\nfine & you\n")
         let speech="1\n00:00:00,000 --> 00:00:01,000\n2024\n\n2\n00:00:01,000 --> 00:00:02,000\nYes\n\n3\n00:00:02,000 --> 00:00:03,000\nNo\n\n4\n00:00:03,000 --> 00:00:04,000\nYes\n"
         XCTAssertEqual(WebDownloadEngine.transcriptText(fromSRT:speech),"2024\nYes\nNo\nYes\n")
+        let entities="1\n00:00:00,000 --> 00:00:01,000\n&lt;b&gt; &quot;it&#39;s&quot; &amp;amp;\n"
+        XCTAssertEqual(WebDownloadEngine.transcriptText(fromSRT:entities),"<b> \"it's\" &amp;\n")
     }
     func testLiveAndProtectedMediaRejected() {
         for json in [#"{"is_live":true,"url":"https://a.org/a"}"#,#"{"live_status":"is_upcoming","url":"https://a.org/a"}"#,#"{"has_drm":true,"url":"https://a.org/a"}"#,#"{"url":"https://a.org/a","formats":[{"height":1080,"has_drm":true}]}"#,#"{"formats":[]}"#] {

@@ -221,12 +221,15 @@ public enum WebDownloadEngine {
         for subtitle in subtitles {
             do {
                 let text=transcriptText(fromSRT:try String(contentsOf:subtitle,encoding:.utf8))
+                guard !text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else { continue }
                 let output=subtitle.deletingPathExtension().appendingPathExtension("txt")
                 try text.write(to:output,atomically:true,encoding:.utf8)
                 results += [output,subtitle]
             } catch { firstError=firstError ?? error }
         }
-        if results.isEmpty,let firstError { throw firstError }
+        if results.isEmpty {
+            throw firstError ?? NashiError.unsupported("This video has no subtitles or automatic captions in your languages or English.")
+        }
         return results
     }
     /// SRT to readable text: no cue numbers, times or tags. Automatic captions roll, so each cue
@@ -241,7 +244,8 @@ public enum WebDownloadEngine {
             lines.removeSubrange(0...timing)
             let cue=lines.map { line in
                 line.replacingOccurrences(of:"<[^>]+>",with:"",options:.regularExpression)
-                    .replacingOccurrences(of:"&nbsp;",with:" ").replacingOccurrences(of:"&amp;",with:"&")
+                    .replacingOccurrences(of:"&nbsp;",with:" ").replacingOccurrences(of:"&lt;",with:"<").replacingOccurrences(of:"&gt;",with:">")
+                    .replacingOccurrences(of:"&quot;",with:"\"").replacingOccurrences(of:"&#39;",with:"'").replacingOccurrences(of:"&amp;",with:"&")
                     .trimmingCharacters(in:.whitespaces)
             }.filter{!$0.isEmpty}
             output += cue.filter{!previous.contains($0)}
